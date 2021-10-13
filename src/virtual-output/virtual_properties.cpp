@@ -5,15 +5,15 @@
 #include <obs-frontend-api.h>
 #include <util/config-file.h>
 
-VirtualProperties::VirtualProperties(QWidget *parent) :
-    QDialog(parent),
-    ui(new Ui::VirtualProperties)
+VirtualProperties::VirtualProperties(QWidget* parent) :
+	QDialog(parent),
+	ui(new Ui::VirtualProperties)
 {
-    ui->setupUi(this);
+	ui->setupUi(this);
 	connect(ui->pushButtonStart, SIGNAL(clicked()),
 		this, SLOT(onStart()));
 	connect(ui->pushButtonStop, SIGNAL(clicked()), this, SLOT(onStop()));
-	connect(ui->spinBox, SIGNAL(valueChanged(int)), 
+	connect(ui->spinBox, SIGNAL(valueChanged(int)),
 		ui->horizontalSlider, SLOT(setValue(int)));
 	connect(ui->horizontalSlider, SIGNAL(valueChanged(int)), ui->spinBox,
 		SLOT(setValue(int)));
@@ -63,7 +63,7 @@ VirtualProperties::~VirtualProperties()
 	virtual_output_disable();
 	virtual_output_terminate();
 	SaveSetting();
-    delete ui;
+	delete ui;
 }
 
 void VirtualProperties::SetVisable()
@@ -99,7 +99,7 @@ void VirtualProperties::onStop()
 	virtual_output_disable();
 }
 
-void VirtualProperties::onStopSignal(void *data, calldata_t *cd)
+void VirtualProperties::onStopSignal(void* data, calldata_t* cd)
 {
 	auto page = (VirtualProperties*)data;
 	bool start_fail = calldata_bool(cd, "start_fail");
@@ -129,11 +129,11 @@ void VirtualProperties::onClickKeepAspectRatio()
 	UpdateParameter();
 }
 
-void VirtualProperties::showEvent(QShowEvent *event)
+void VirtualProperties::showEvent(QShowEvent* event)
 {
 }
 
-void VirtualProperties::closeEvent(QCloseEvent *event)
+void VirtualProperties::closeEvent(QCloseEvent* event)
 {
 	SaveSetting();
 }
@@ -146,9 +146,11 @@ void VirtualProperties::SaveSetting()
 		bool hori_flip = ui->checkBox_horiflip->isChecked();
 		bool keep_ratio = ui->checkBox_keepratio->isChecked();
 		int delay = ui->horizontalSlider->value();
+		int target = ui->comboBox_target->currentIndex();
 		config_set_bool(config, "VirtualOutput", "AutoStart", autostart);
 		config_set_bool(config, "VirtualOutput", "HoriFlip", hori_flip);
 		config_set_bool(config, "VirtualOutput", "KeepRatio", keep_ratio);
 		config_set_int(config, "VirtualOutput", "OutDelay", delay);
+		config_set_int(config, "VirtualOutput", "Target", target);
 	}
 }
