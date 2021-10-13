@@ -5,7 +5,7 @@
 #include "obs.h"
 #include "../queue/share_queue_write.h"
 
-struct vcam_update_data{
+struct vcam_update_data {
 	bool horizontal_flip = false;
 	bool keep_ratio = false;
 	int delay = 0;
@@ -13,19 +13,19 @@ struct vcam_update_data{
 };
 
 namespace Ui {
-class VirtualProperties;
+	class VirtualProperties;
 }
 
 class VirtualProperties : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    explicit VirtualProperties(QWidget *parent = 0);
-    ~VirtualProperties();
+	explicit VirtualProperties(QWidget* parent = 0);
+	~VirtualProperties();
 	void SetVisable();
-	void showEvent(QShowEvent *event);
-	void closeEvent(QCloseEvent *event);
+	void showEvent(QShowEvent* event);
+	void closeEvent(QCloseEvent* event);
 	void EnableOptions(bool enable);
 	void ShowWarning(bool show);
 
@@ -34,15 +34,16 @@ private Q_SLOTS:
 	void onStop();
 	void onClickHorizontalFlip();
 	void onClickKeepAspectRatio();
+	void checkTarget(int* target);
 
 private:
-    Ui::VirtualProperties *ui;
+	Ui::VirtualProperties* ui;
 	struct obs_video_info video_info;
 	struct vcam_update_data update_data;
 	QString scene_name;
 	void UpdateParameter();
 	void SaveSetting();
-	static void onStopSignal(void *data, calldata_t *cd);
+	static void onStopSignal(void* data, calldata_t* cd);
 };
 
 #endif // VIRTUAL_PROPERTIES_H

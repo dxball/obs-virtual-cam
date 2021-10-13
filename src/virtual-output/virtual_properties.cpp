@@ -4,6 +4,8 @@
 #include <math.h>
 #include <obs-frontend-api.h>
 #include <util/config-file.h>
+#include <util/dstr.h>
+#include <util/bmem.h>
 
 VirtualProperties::VirtualProperties(QWidget* parent) :
 	QDialog(parent),
@@ -23,10 +25,10 @@ VirtualProperties::VirtualProperties(QWidget* parent) :
 		SLOT(onClickKeepAspectRatio()));
 
 	config_t* config = obs_frontend_get_global_config();
-	config_set_default_bool(config, "VirtualOutput", "AutoStart", false);
+	config_set_default_bool(config, "VirtualOutput", "AutoStart", true);
 	config_set_default_bool(config, "VirtualOutput", "HoriFlip", false);
 	config_set_default_bool(config, "VirtualOutput", "KeepRatio", false);
-	config_set_default_int(config, "VirtualOutput", "OutDelay", 3);	
+	config_set_default_int(config, "VirtualOutput", "OutDelay", 0);
 	config_set_default_int(config, "VirtualOutput", "Target", 0);
 	bool autostart = config_get_bool(config, "VirtualOutput", "AutoStart");
 	bool hori_flip = config_get_bool(config, "VirtualOutput", "HoriFlip");
@@ -34,7 +36,8 @@ VirtualProperties::VirtualProperties(QWidget* parent) :
 	int delay = config_get_int(config, "VirtualOutput", "OutDelay");
 	int target = config_get_int(config, "VirtualOutput", "Target");
 
-	
+	checkTarget(&target);
+
 	ui->checkBox_auto->setChecked(autostart);
 	ui->checkBox_horiflip->setChecked(hori_flip);
 	ui->checkBox_keepratio->setChecked(keep_ratio);
@@ -69,6 +72,27 @@ VirtualProperties::~VirtualProperties()
 void VirtualProperties::SetVisable()
 {
 	setVisible(!isVisible());
+}
+
+void VirtualProperties::checkTarget(int* target)
+{
+	// use particular target by profile name
+	char* profile_name = obs_frontend_get_current_profile();
+	char MASTER_PROFILE[] = "C3-Dual";
+	char SLAVE_PROFILE[] = "C3-Dual-Slave";
+	bool redefineTarget = false;
+	if (astrcmpi_n(profile_name, MASTER_PROFILE, sizeof(MASTER_PROFILE)) == 0) {
+		*target = 0;
+		redefineTarget = true;
+	}
+	else if (astrcmpi_n(profile_name, SLAVE_PROFILE, sizeof(SLAVE_PROFILE)) == 0) {
+		*target = 1;
+		redefineTarget = true;
+	}
+	if (redefineTarget) {
+		blog(LOG_INFO, "VirtualOutput Profile=%s Target=%d", profile_name, *target);
+	}
+	bfree(profile_name);
 }
 
 void VirtualProperties::EnableOptions(bool enable)
